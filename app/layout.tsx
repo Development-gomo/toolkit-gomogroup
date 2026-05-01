@@ -6,6 +6,19 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Tools | GO MO Group",
   description: "The internal toolkit from GO MO Group.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+  icons: {
+    icon: "https://www.gomogroup.com/wp-content/uploads/2023/12/cropped-favicon-180x180.png",
+    apple: "https://www.gomogroup.com/wp-content/uploads/2023/12/cropped-favicon-180x180.png",
+  },
 };
 
 export default function RootLayout({
