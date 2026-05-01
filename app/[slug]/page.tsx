@@ -11,14 +11,16 @@ interface BuilderBlock {
   [key: string]: unknown;
 }
 
+type ACFFields = Record<string, unknown>;
+
 interface PageParams {
   params: Promise<{
     slug: string;
   }>;
 }
 
-function buildPageModules(acf = {}) {
-  const modules = Array.isArray(acf.website_modules) ? acf.website_modules : [];
+function buildPageModules(acf: ACFFields = {}) {
+  const modules = Array.isArray(acf.website_modules) ? (acf.website_modules as BuilderBlock[]) : [];
 
   if (modules.length > 0) {
     return modules;

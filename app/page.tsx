@@ -11,8 +11,10 @@ interface BuilderBlock {
   [key: string]: unknown;
 }
 
-function buildHomepageModules(acf = {}) {
-  const modules = Array.isArray(acf.website_modules) ? acf.website_modules : [];
+type ACFFields = Record<string, unknown>;
+
+function buildHomepageModules(acf: ACFFields = {}) {
+  const modules = Array.isArray(acf.website_modules) ? (acf.website_modules as BuilderBlock[]) : [];
 
   if (modules.length > 0) {
     return modules;
