@@ -1,9 +1,9 @@
-//app/page.tsx
+// app/[slug]/page.tsx
 
 import type { Metadata } from 'next';
-import Footer from './components/layout/footer';
-import Header from './components/layout/header';
-import PageBuilder from './components/layout/pagebuilder.js';
+import Footer from '../components/layout/footer';
+import Header from '../components/layout/header';
+import PageBuilder from '../components/layout/pagebuilder.js';
 import { getPageWithACF, getToolkitSettings } from '@/app/lib/wp';
 
 interface BuilderBlock {
@@ -11,7 +11,13 @@ interface BuilderBlock {
   [key: string]: unknown;
 }
 
-function buildHomepageModules(acf = {}) {
+interface PageParams {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+function buildPageModules(acf = {}) {
   const modules = Array.isArray(acf.website_modules) ? acf.website_modules : [];
 
   if (modules.length > 0) {
@@ -20,12 +26,15 @@ function buildHomepageModules(acf = {}) {
 
   const fallbackModules: BuilderBlock[] = [];
 
-  if (acf.eyebrow || acf.hero_heading || acf.hero_body) {
+  if (acf.eyebrow || acf.hero_heading || acf.hero_body || acf.subtitle || acf.title || acf.description) {
     fallbackModules.push({
       acf_fc_layout: 'hero_section',
       eyebrow: acf.eyebrow,
       hero_heading: acf.hero_heading,
       hero_body: acf.hero_body,
+      subtitle: acf.subtitle,
+      title: acf.title,
+      description: acf.description,
     });
   }
 
@@ -48,13 +57,14 @@ function buildHomepageModules(acf = {}) {
   return fallbackModules;
 }
 
-// ✅ SEO metadata generation
-export async function generateMetadata(): Promise<Metadata> {
-  const data = await getPageWithACF('home');
-
-  const title = data?.title || 'Tools | GO MO Group ';
-  const description = data?.acf?.seo_description || 'The internal toolkit from GO MO Group.';
-  const ogImage = data?.acf?.seo_image?.url || 'https://www.gomogroup.com/wp-content/uploads/2025/06/Pune-img.webp';
+// ✅ SEO generation
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await getPageWithACF(slug);
+  
+  const title = page?.title || 'Page Not Found | GO MO Group';
+  const description = page?.acf?.seo_description || 'The internal toolkit from GO MO Group.';
+  const ogImage = page?.acf?.seo_image?.url || 'https://www.gomogroup.com/wp-content/uploads/2025/06/Pune-img.webp';
 
   return {
     title,
@@ -73,36 +83,37 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// ✅ Home page rendering
-export default async function Home() {
-  const [data, settings] = await Promise.all([getPageWithACF('home'), getToolkitSettings()]);
+export default async function DynamicPage({ params }: PageParams) {
+  const { slug } = await params;
+  const [data, settings] = await Promise.all([getPageWithACF(slug), getToolkitSettings()]);
 
   if (!data) {
     return (
       <main className="flex items-center justify-center min-h-screen">
-        <div className="p-10 text-red-500 text-center">
-          <h1 className="text-2xl font-bold mb-2">Page not found</h1>
-          <p>Unable to load home page content</p>
+        <div className="text-center">
+          <div className="h-[80px] w-full bg-black"></div> 
+          <div className="pt-40 font-bold text-9xl mb-5">404</div>
+          <div className="pb-40 font-bold text-5xl text-[#133a5b]">Page not found</div>
         </div>
       </main>
     );
   }
 
   const builder: BuilderBlock[] = [
-    ...buildHomepageModules(data.acf || {}),
-    ...(Array.isArray(data.acf?.fkab_builder) ? data.acf.fkab_builder : []),
+    ...buildPageModules(data.acf || {}),
+    ...(Array.isArray(data.acf?.ca_builder) ? data.acf.ca_builder : []),
   ];
 
   return (
     <>
       <Header settings={settings || {}} />
-      <main className="pb-6">
+      <main className="pages min-h-screen pb-6">
         {builder.length === 0 ? (
           <div className="mx-auto max-w-4xl px-6 py-20 md:px-10">
             <div className="rounded-[2rem] border border-[color:var(--border-soft)] bg-[color:var(--card)] p-10 shadow-[0_30px_80px_rgba(17,24,39,0.08)]">
               <h2 className="font-serif text-3xl font-semibold text-[color:var(--foreground)]">No content modules found</h2>
               <p className="mt-4 text-lg leading-8 text-[color:var(--muted)]">
-                Add the Home Page field group to the Home page and insert the flexible content layouts in this order:
+                Add the Home Page field group to this page and insert the flexible content layouts in this order:
                 hero section, tools section, then tool cards section.
               </p>
             </div>

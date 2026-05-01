@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #070c11;
+  --muted: rgba(7, 12, 17, 0.55);
+  --surface: hsla(0, 0%, 100%, 0.72);
+  --surface-strong: #f1f5f9;
+  --card: hsla(0, 0%, 100%, 0.82);
+  --border-soft: rgba(7, 12, 17, 0.1);
+  --border-strong: rgba(7, 12, 17, 0.16);
+  --accent: #3a47ff;
+  --accent-secondary: #00deff;
+  --secondary-fg: #030cf4;
+  --secondary-border: rgba(3, 12, 244, 0.35);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Nunito Sans", "Segoe UI", sans-serif;
+  --font-heading: "Merriweather", Georgia, "Times New Roman", serif;
+  --font-mono: "SFMono-Regular", "SF Mono", "Menlo", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  --background: #070c11;
+  --foreground: #f8fafc;
+  --muted: hsla(0, 0%, 100%, 0.62);
+  --surface: rgba(7, 12, 17, 0.48);
+  --surface-strong: rgba(16, 24, 32, 0.75);
+  --card: rgba(7, 12, 17, 0.5);
+  --border-soft: hsla(0, 0%, 100%, 0.12);
+  --border-strong: #00deff33;
+  --accent: #00deff;
+  --accent-secondary: #bd27f6;
+  --secondary-fg: #00deff;
+  --secondary-border: rgba(0, 222, 255, 0.55);
+}
+
+html {
+  background-color: var(--background);
+}
+
+html[data-theme="dark"] {
+  background-attachment: fixed;
+  background-color: #070c11;
+  background-image:
+    linear-gradient(180deg, rgba(0, 222, 255, 0.14), rgba(0, 222, 255, 0.03) 12%, transparent 28%),
+    radial-gradient(ellipse 85% 75% at 0 0, rgba(3, 12, 244, 0.55), rgba(3, 12, 244, 0.08) 42%, transparent 70%),
+    radial-gradient(ellipse 90% 80% at 100% 0, rgba(189, 39, 246, 0.52), rgba(189, 39, 246, 0.06) 45%, transparent 72%),
+    radial-gradient(ellipse 120% 80% at 50% 100%, rgba(16, 24, 32, 0.65), transparent 52%),
+    linear-gradient(165deg, #070c11, #0b1118 35%, #101820 78%, #070c11);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 140% 120%, 140% 120%, 100% 85%, 100% 100%;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(ellipse 95% 70% at 96% 4%, rgba(189, 39, 246, 0.09), transparent 58%),
+    radial-gradient(ellipse 75% 55% at 2% 98%, rgba(3, 12, 244, 0.07), transparent 52%),
+    linear-gradient(180deg, #f8fafc, #f1f5f9 55%, #eef2f7);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+}
+
+html[data-theme="dark"] body {
+  background: none;
+  background-color: transparent;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
+html[data-theme="dark"] img.header-logo {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 599px) {
+  .hide-home-mobile {
+    display: none;
+  }
 }
