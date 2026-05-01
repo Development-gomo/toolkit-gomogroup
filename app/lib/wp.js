@@ -1,17 +1,30 @@
 // lib/wp.js
 
-const API_BASE = 'https://tools.gomogroup.com/wp-json';
+const API_BASE = process.env.WP_API_BASE || 'https://tools.gomogroup.com/wp-json';
+
+async function fetchJSON(path) {
+  const url = `${API_BASE}${path}`;
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(
+      `WordPress request failed (${response.status} ${response.statusText}) for ${url}: ${body.slice(0, 240)}`,
+    );
+  }
+
+  return response.json();
+}
 
 // 🧱 Pages with ACF
 export async function getPageWithACF(slug) {
   try {
-    const url = `${API_BASE}/wp/v2/pages?slug=${slug}`;
-    
-    const res = await fetch(url, {
-      cache: 'no-store',
-    });
-
-    const data = await res.json();
+    const data = await fetchJSON(`/wp/v2/pages?slug=${encodeURIComponent(slug)}`);
     
     const [page] = data;
     
@@ -30,21 +43,13 @@ export async function getPageWithACF(slug) {
       acf: acfData,
     };
   } catch (error) {
-    console.error('Error fetching page:', error);
+    console.error(`Error fetching page "${slug}" from ${API_BASE}:`, error);
     return null;
   }
 }
 
 async function fetchOptionsEndpoint(path) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed options request: ${path}`);
-  }
-
-  return response.json();
+  return fetchJSON(path);
 }
 
 export async function getToolkitSettings() {
@@ -75,11 +80,7 @@ export async function getNewsPostsByIdsServer(ids = []) {
   if (!ids.length) return [];
   try {
     const idString = ids.join(',');
-    const res = await fetch(`${API_BASE}/wp/v2/posts?include=${idString}`, {
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    return await res.json();
+    return await fetchJSON(`/wp/v2/posts?include=${idString}`);
   } catch (error) {
     console.error('Error fetching news posts:', error);
     return [];
